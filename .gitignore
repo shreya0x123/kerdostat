@@ -1,0 +1,18 @@
+# Environment variables (Alpaca private keys)
+.env
+backend/.env
+
+# Local SQLite databases
+*.db
+backend/*.db
+
+# Python virtual environments & cache
+venv/
+.pytest_cache/
+__pycache__/
+*.pyc
+
+# Node modules & frontend builds
+node_modules/
+dist/
+.eslintcache

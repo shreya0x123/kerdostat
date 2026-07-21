@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+pydantic
+PyJWT
+sqlalchemy
+urllib3
+requests
+alpaca-trade-api
+pandas
+pandas-ta
+pytest
+redis
+scikit-learn
+joblib
