@@ -1,0 +1,287 @@
+{
+	"info": {
+		"_postman_id": "7209baea-2476-4069-9c90-kerdostat-v1",
+		"name": "Kerdostat Signal Engine & Trading API v1.0.0",
+		"description": "Complete Postman collection for Kerdostat Hybrid Copilot-to-Autopilot Trading Framework.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"postmanuser2\",\n  \"email\": \"postmanuser2@kerdostat.com\",\n  \"password\": \"test123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{ "key": "username", "value": "postmanuser2" },
+								{ "key": "password", "value": "test123" }
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. User Profile & Mode",
+			"item": [
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{bearerToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["user", "me"]
+						}
+					}
+				},
+				{
+					"name": "Update Operational Mode (PATCH /user/mode)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{bearerToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"mode\": \"AUTOPILOT\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/mode",
+							"host": ["{{baseUrl}}"],
+							"path": ["user", "mode"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Signal Engine",
+			"item": [
+				{
+					"name": "Generate Signal with XDI",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{bearerToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"symbol\": \"AAPL\",\n  \"period\": \"6mo\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/signal/generate",
+							"host": ["{{baseUrl}}"],
+							"path": ["signal", "generate"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Trade Lifecycle",
+			"item": [
+				{
+					"name": "Propose Trade",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{bearerToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"symbol\": \"NVDA\",\n  \"action\": \"BUY\",\n  \"quantity\": 10.0,\n  \"risk_score\": 4.5,\n  \"indicator_summary\": \"RSI=32 oversold\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/trade/propose",
+							"host": ["{{baseUrl}}"],
+							"path": ["trade", "propose"]
+						}
+					}
+				},
+				{
+					"name": "Get Paginated Proposals",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{bearerToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/trade/proposals?page=1&page_size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["trade", "proposals"],
+							"query": [
+								{ "key": "page", "value": "1" },
+								{ "key": "page_size", "value": "10" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Override Proposal SL/TP/Qty",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{bearerToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"quantity\": 15.0,\n  \"stop_loss\": 140.0,\n  \"take_profit\": 180.0,\n  \"reason\": \"Manual risk adjustment\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/trade/1/override",
+							"host": ["{{baseUrl}}"],
+							"path": ["trade", "1", "override"]
+						}
+					}
+				},
+				{
+					"name": "Interrupt Trade Execution",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{bearerToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/trade/1/interrupt",
+							"host": ["{{baseUrl}}"],
+							"path": ["trade", "1", "interrupt"]
+						}
+					}
+				},
+				{
+					"name": "Resume Trade Execution",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{bearerToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/trade/1/resume",
+							"host": ["{{baseUrl}}"],
+							"path": ["trade", "1", "resume"]
+						}
+					}
+				},
+				{
+					"name": "Execute Trade Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{bearerToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/trade/execute/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["trade", "execute", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Guardrails & Audit",
+			"item": [
+				{
+					"name": "Get Guardrail Configuration",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{bearerToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/guardrails/config",
+							"host": ["{{baseUrl}}"],
+							"path": ["guardrails", "config"]
+						}
+					}
+				},
+				{
+					"name": "Get Audit Trail Logs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{bearerToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit/log?page=1&page_size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["audit", "log"],
+							"query": [
+								{ "key": "page", "value": "1" },
+								{ "key": "page_size", "value": "10" }
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Market & Health",
+			"item": [
+				{
+					"name": "Get Cached Market OHLCV",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/market/ohlcv/AAPL",
+							"host": ["{{baseUrl}}"],
+							"path": ["market", "ohlcv", "AAPL"]
+						}
+					}
+				},
+				{
+					"name": "System Health",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["health"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{ "key": "baseUrl", "value": "http://localhost:8000" },
+		{ "key": "bearerToken", "value": "" }
+	]
+}
