@@ -1,0 +1,1 @@
+# Kerdostat technical indicators module

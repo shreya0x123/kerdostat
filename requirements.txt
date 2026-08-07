@@ -3,3 +3,8 @@ numpy
 alpaca-py
 python-dotenv
 pytest
+scikit-learn
+tensorflow
+matplotlib
+rich
+yfinance
