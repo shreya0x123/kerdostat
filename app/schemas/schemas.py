@@ -78,7 +78,6 @@ class AuditLogResponse(AuditLogBase):
     class Config:
         from_attributes = True
 
-# Override schemas
 class TradeOverrideRequest(BaseModel):
     quantity: Optional[float] = Field(None, gt=0)
     stop_loss: Optional[float] = Field(None, gt=0)
@@ -95,6 +94,25 @@ class TradeOverrideResponse(BaseModel):
     reason: str
     overridden_by: str
     timestamp: datetime
+    xdi_after_override: Optional[str] = None   # Day 10: recalculated XDI explanation
 
     class Config:
         from_attributes = True
+
+
+# ── Execute schemas (Day 8) ───────────────────────────────────────────────────
+class TradeExecuteRequest(BaseModel):
+    proposal_id: int = Field(..., description="ID of an existing PENDING trade proposal")
+
+class TradeExecuteResponse(BaseModel):
+    proposal_id: int
+    order_id: str
+    symbol: str
+    action: str
+    quantity: float
+    status: str          # "executed" | "failed" | "guardrail_blocked"
+    fill_status: str     # "filled" | "partially_filled" | "pending" | "error"
+    filled_qty: float
+    avg_fill_price: Optional[float]
+    mock_mode: bool
+    message: str

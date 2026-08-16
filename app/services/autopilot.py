@@ -97,6 +97,29 @@ def evaluate_and_execute_autopilot(
         db.add(log_entry)
         db.commit()
 
+        # ── Day 11: Emit WebSocket event for auto-execution ───────────────────
+        ws_event = {
+            "type": "autopilot_executed",
+            "proposal_id": proposal.id,
+            "symbol": proposal.symbol,
+            "action": proposal.action,
+            "quantity": proposal.quantity,
+            "order_id": order_id,
+            "mode": "AUTOPILOT",
+        }
+        try:
+            import asyncio
+            from app.routers.websocket import manager
+            # Fire-and-forget broadcast (non-blocking; manager handles disconnects)
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                asyncio.ensure_future(manager.broadcast(ws_event))
+            else:
+                loop.run_until_complete(manager.broadcast(ws_event))
+        except Exception as ws_exc:
+            # WebSocket broadcast failure must never block trade execution
+            logger.warning("[AUTOPILOT] WebSocket broadcast failed (non-fatal): %s", ws_exc)
+
         return {
             "auto_executed": True,
             "status": "EXECUTED",
@@ -113,3 +136,4 @@ def evaluate_and_execute_autopilot(
             "status": proposal.status,
             "error": str(exc)
         }
+

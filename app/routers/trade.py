@@ -1,13 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
+from datetime import datetime, timezone
 from app.models.models import AuditLog
 from app.core.database import get_db
 from app.core.auth import get_current_user
 from app.models.models import TradeProposal, User
-from app.schemas.schemas import TradeProposalCreate, TradeProposalResponse
+from app.schemas.schemas import (
+    TradeProposalCreate, TradeProposalResponse,
+    TradeExecuteRequest, TradeExecuteResponse,
+)
+from app.services.alpaca_executor import alpaca_executor
 
 router = APIRouter(prefix="/trade", tags=["Trade"])
+
 
 
 @router.post("/propose", response_model=TradeProposalResponse)
@@ -297,3 +303,118 @@ def resume_trade(
     db.commit()
 
     return proposal
+
+
+# ── POST /trade/execute (Day 8) ───────────────────────────────────────────────
+
+@router.post(
+    "/execute",
+    response_model=TradeExecuteResponse,
+    summary="Execute a trade proposal through Alpaca paper trading",
+    description="""
+## Trade Execution
+
+Executes a PENDING trade proposal through the Alpaca paper-trading API.
+
+Set `ALPACA_MOCK_MODE=true` in `.env` to run locally without real credentials.
+
+**Responses:**
+- `200` — Order submitted (order_id, fill_status, avg_fill_price)
+- `404` — Proposal not found
+- `400` — Proposal not in PENDING status
+- `401` — Invalid or expired token
+    """,
+)
+def execute_trade(
+    body: TradeExecuteRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    POST /trade/execute
+
+    1. Fetch the proposal from DB.
+    2. Validate it is PENDING.
+    3. Submit through AlpacaExecutor (paper trading only).
+    4. Update proposal status to EXECUTED or FAILED.
+    5. Write audit log.
+    6. Return structured response.
+    """
+    proposal = db.query(TradeProposal).filter(
+        TradeProposal.id == body.proposal_id
+    ).first()
+
+    if not proposal:
+        raise HTTPException(status_code=404, detail="Trade proposal not found.")
+
+    if proposal.status != "PENDING":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Only PENDING proposals can be executed. Current status: '{proposal.status}'",
+        )
+
+    qty    = proposal.quantity
+    symbol = proposal.symbol
+    action = proposal.action.lower()
+
+    if action == "buy":
+        order_result = alpaca_executor.submit_buy(symbol, qty)
+    elif action == "sell":
+        order_result = alpaca_executor.submit_sell(symbol, qty)
+    else:
+        raise HTTPException(status_code=400, detail=f"Unknown action: {proposal.action}")
+
+    if order_result.status == "error":
+        proposal.status = "FAILED"
+        db.commit()
+        db.add(AuditLog(
+            trade_proposal_id=proposal.id,
+            action_taken="EXECUTION_FAILED",
+            decision_by=current_user.username,
+            reason=order_result.error_message or "Unknown broker error",
+            mode=getattr(current_user, "mode", "COPILOT"),
+        ))
+        db.commit()
+        return TradeExecuteResponse(
+            proposal_id=proposal.id,
+            order_id="",
+            symbol=symbol,
+            action=proposal.action,
+            quantity=qty,
+            status="failed",
+            fill_status="error",
+            filled_qty=0.0,
+            avg_fill_price=None,
+            mock_mode=alpaca_executor.is_mock,
+            message=f"Execution failed: {order_result.error_message}",
+        )
+
+    fill = alpaca_executor.get_fill_status(order_result.order_id)
+    proposal.status = "EXECUTED"
+    db.commit()
+
+    db.add(AuditLog(
+        trade_proposal_id=proposal.id,
+        action_taken="EXECUTED",
+        decision_by=current_user.username,
+        reason=(
+            f"Order {order_result.order_id} submitted — mock={alpaca_executor.is_mock}. "
+            f"Fill={fill.status} qty={fill.filled_qty}."
+        ),
+        mode=getattr(current_user, "mode", "COPILOT"),
+    ))
+    db.commit()
+
+    return TradeExecuteResponse(
+        proposal_id=proposal.id,
+        order_id=order_result.order_id,
+        symbol=symbol,
+        action=proposal.action,
+        quantity=qty,
+        status="executed",
+        fill_status=fill.status,
+        filled_qty=fill.filled_qty,
+        avg_fill_price=fill.avg_fill_price,
+        mock_mode=alpaca_executor.is_mock,
+        message=f"Order submitted. Fill: {fill.status}.",
+    )

@@ -105,6 +105,30 @@ def override_trade(
     db.add(log_entry)
     db.commit()
 
+    # ── Day 10: Recalculate XDI with override-aware justification ─────────────
+    xdi_after_override: str | None = None
+    try:
+        from app.services.signal_engine import run_signal_pipeline, generate_override_aware_xdi
+        pipeline_result = run_signal_pipeline(proposal.symbol)
+        if pipeline_result.get("signal"):
+            override_params = {
+                "quantity":    proposal.quantity,
+                "stop_loss":   proposal.stop_loss,
+                "take_profit": proposal.take_profit,
+                "reason":      override.reason,
+            }
+            xdi_after_override = generate_override_aware_xdi(
+                pipeline_result["signal"], override_params
+            )
+    except Exception:
+        # Non-fatal — XDI recalculation is best-effort during override
+        xdi_after_override = (
+            f"TRADER OVERRIDE APPLIED — "
+            f"Quantity={proposal.quantity}, "
+            f"SL={proposal.stop_loss}, TP={proposal.take_profit}. "
+            f"Reason: {override.reason}"
+        )
+
     return TradeOverrideResponse(
         proposal_id=proposal.id,
         status=proposal.status,
@@ -114,5 +138,6 @@ def override_trade(
         take_profit=proposal.take_profit,
         reason=override.reason,
         overridden_by=current_user.username,
-        timestamp=datetime.now(timezone.utc)
+        timestamp=datetime.now(timezone.utc),
+        xdi_after_override=xdi_after_override,
     )

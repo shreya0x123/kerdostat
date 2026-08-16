@@ -81,3 +81,76 @@ def generate_signal(
         xdi_justification=xdi,
         proposal_id=proposal.id
     )
+
+
+# ── Day 13: Backtest endpoints ────────────────────────────────────────────────
+
+from typing import Any, Dict
+
+@router.get(
+    "/backtest-report",
+    response_model=Dict[str, Any],
+    summary="Return the saved signal-engine backtest report",
+    description="""
+## Signal Engine Backtest Report
+
+Returns the most recently generated backtest report (BUY/SELL precision + recall).
+
+If no report exists yet, runs a fresh backtest using mock data (safe for CI/offline).
+
+**Report includes:**
+- Methodology and indicator configuration
+- Per-day predicted vs actual direction
+- BUY precision, recall, F1
+- SELL precision, recall, F1
+
+**Requires JWT authentication.**
+    """,
+)
+def get_backtest_report(
+    current_user: User = Depends(get_current_user),
+):
+    from app.services.backtest import load_backtest_report, run_backtest
+
+    report = load_backtest_report()
+    if report is None:
+        # Run a fresh backtest using mock data so the endpoint always responds
+        try:
+            report = run_backtest(symbol="AAPL", use_mock_data=True)
+        except Exception as exc:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Backtest report not available and fresh run failed: {exc}",
+            )
+    return report
+
+
+@router.post(
+    "/backtest",
+    response_model=Dict[str, Any],
+    summary="Run a fresh signal-engine backtest",
+    description="""
+## Run Signal Engine Backtest
+
+Runs a walk-forward backtest of the signal engine over the evaluation window.
+
+**Request body (all optional):**
+- `symbol` — Ticker to test (default: AAPL)
+- `use_mock_data` — If true, use synthetic data (for offline/CI mode)
+
+Saves results to `artifacts/backtest_report.json`.
+
+**Requires JWT authentication.**
+    """,
+)
+def run_fresh_backtest(
+    symbol: str = "AAPL",
+    use_mock_data: bool = True,
+    current_user: User = Depends(get_current_user),
+):
+    from app.services.backtest import run_backtest
+    try:
+        report = run_backtest(symbol=symbol, use_mock_data=use_mock_data)
+        return report
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Backtest failed: {exc}")

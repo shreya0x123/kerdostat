@@ -1,0 +1,286 @@
+{
+  "metadata": {
+    "generated_at": "2026-08-16T06:04:44.921951+00:00",
+    "symbol": "AAPL",
+    "eval_window_days": 30,
+    "lookback_days": 120,
+    "forward_return_threshold_pct": 1.0,
+    "methodology": "Walk-forward evaluation: for each day in the eval window, the signal engine runs on a rolling lookback window (no lookahead). Ground truth is determined by the next-day price change: \u22651% = BUY correct, \u2264-1% = SELL correct, otherwise HOLD.",
+    "indicator_config": {
+      "ema_short": 20,
+      "ema_long": 50,
+      "macd_fast": 12,
+      "macd_slow": 26,
+      "macd_signal": 9,
+      "rsi_oversold": 35,
+      "rsi_overbought": 65
+    },
+    "used_mock_data": true
+  },
+  "summary": {
+    "total_days_evaluated": 30,
+    "buy_signals_generated": 0,
+    "sell_signals_generated": 0,
+    "hold_signals_generated": 30
+  },
+  "buy_metrics": {
+    "true_positives": 0,
+    "false_positives": 0,
+    "true_negatives": 23,
+    "false_negatives": 7,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1_score": 0.0
+  },
+  "sell_metrics": {
+    "true_positives": 0,
+    "false_positives": 0,
+    "true_negatives": 17,
+    "false_negatives": 13,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1_score": 0.0
+  },
+  "daily_records": [
+    {
+      "date": "2026-07-17",
+      "current_price": 166.89,
+      "next_price": 168.25,
+      "fwd_return_pct": 0.8129,
+      "predicted": "HOLD",
+      "actual": "HOLD"
+    },
+    {
+      "date": "2026-07-18",
+      "current_price": 168.25,
+      "next_price": 168.6,
+      "fwd_return_pct": 0.2082,
+      "predicted": "HOLD",
+      "actual": "HOLD"
+    },
+    {
+      "date": "2026-07-19",
+      "current_price": 168.6,
+      "next_price": 168.37,
+      "fwd_return_pct": -0.1401,
+      "predicted": "HOLD",
+      "actual": "HOLD"
+    },
+    {
+      "date": "2026-07-20",
+      "current_price": 168.37,
+      "next_price": 169.35,
+      "fwd_return_pct": 0.583,
+      "predicted": "HOLD",
+      "actual": "HOLD"
+    },
+    {
+      "date": "2026-07-21",
+      "current_price": 169.35,
+      "next_price": 174.53,
+      "fwd_return_pct": 3.0594,
+      "predicted": "HOLD",
+      "actual": "BUY"
+    },
+    {
+      "date": "2026-07-22",
+      "current_price": 174.53,
+      "next_price": 174.0,
+      "fwd_return_pct": -0.2999,
+      "predicted": "HOLD",
+      "actual": "HOLD"
+    },
+    {
+      "date": "2026-07-23",
+      "current_price": 174.0,
+      "next_price": 174.51,
+      "fwd_return_pct": 0.2899,
+      "predicted": "HOLD",
+      "actual": "HOLD"
+    },
+    {
+      "date": "2026-07-24",
+      "current_price": 174.51,
+      "next_price": 176.53,
+      "fwd_return_pct": 1.1575,
+      "predicted": "HOLD",
+      "actual": "BUY"
+    },
+    {
+      "date": "2026-07-25",
+      "current_price": 176.53,
+      "next_price": 179.66,
+      "fwd_return_pct": 1.7736,
+      "predicted": "HOLD",
+      "actual": "BUY"
+    },
+    {
+      "date": "2026-07-26",
+      "current_price": 179.66,
+      "next_price": 180.27,
+      "fwd_return_pct": 0.3411,
+      "predicted": "HOLD",
+      "actual": "HOLD"
+    },
+    {
+      "date": "2026-07-27",
+      "current_price": 180.27,
+      "next_price": 178.8,
+      "fwd_return_pct": -0.815,
+      "predicted": "HOLD",
+      "actual": "HOLD"
+    },
+    {
+      "date": "2026-07-28",
+      "current_price": 178.8,
+      "next_price": 175.54,
+      "fwd_return_pct": -1.824,
+      "predicted": "HOLD",
+      "actual": "SELL"
+    },
+    {
+      "date": "2026-07-29",
+      "current_price": 175.54,
+      "next_price": 173.94,
+      "fwd_return_pct": -0.9121,
+      "predicted": "HOLD",
+      "actual": "HOLD"
+    },
+    {
+      "date": "2026-07-30",
+      "current_price": 173.94,
+      "next_price": 168.47,
+      "fwd_return_pct": -3.1459,
+      "predicted": "HOLD",
+      "actual": "SELL"
+    },
+    {
+      "date": "2026-07-31",
+      "current_price": 168.47,
+      "next_price": 166.22,
+      "fwd_return_pct": -1.3324,
+      "predicted": "HOLD",
+      "actual": "SELL"
+    },
+    {
+      "date": "2026-08-01",
+      "current_price": 166.22,
+      "next_price": 163.87,
+      "fwd_return_pct": -1.4155,
+      "predicted": "HOLD",
+      "actual": "SELL"
+    },
+    {
+      "date": "2026-08-02",
+      "current_price": 163.87,
+      "next_price": 167.05,
+      "fwd_return_pct": 1.9377,
+      "predicted": "HOLD",
+      "actual": "BUY"
+    },
+    {
+      "date": "2026-08-03",
+      "current_price": 167.05,
+      "next_price": 172.15,
+      "fwd_return_pct": 3.0561,
+      "predicted": "HOLD",
+      "actual": "BUY"
+    },
+    {
+      "date": "2026-08-04",
+      "current_price": 172.15,
+      "next_price": 172.63,
+      "fwd_return_pct": 0.2762,
+      "predicted": "HOLD",
+      "actual": "HOLD"
+    },
+    {
+      "date": "2026-08-05",
+      "current_price": 172.63,
+      "next_price": 168.08,
+      "fwd_return_pct": -2.6357,
+      "predicted": "HOLD",
+      "actual": "SELL"
+    },
+    {
+      "date": "2026-08-06",
+      "current_price": 168.08,
+      "next_price": 165.08,
+      "fwd_return_pct": -1.7839,
+      "predicted": "HOLD",
+      "actual": "SELL"
+    },
+    {
+      "date": "2026-08-07",
+      "current_price": 165.08,
+      "next_price": 162.13,
+      "fwd_return_pct": -1.7839,
+      "predicted": "HOLD",
+      "actual": "SELL"
+    },
+    {
+      "date": "2026-08-08",
+      "current_price": 162.13,
+      "next_price": 159.24,
+      "fwd_return_pct": -1.7839,
+      "predicted": "HOLD",
+      "actual": "SELL"
+    },
+    {
+      "date": "2026-08-09",
+      "current_price": 159.24,
+      "next_price": 156.4,
+      "fwd_return_pct": -1.7839,
+      "predicted": "HOLD",
+      "actual": "SELL"
+    },
+    {
+      "date": "2026-08-10",
+      "current_price": 156.4,
+      "next_price": 153.61,
+      "fwd_return_pct": -1.7839,
+      "predicted": "HOLD",
+      "actual": "SELL"
+    },
+    {
+      "date": "2026-08-11",
+      "current_price": 153.61,
+      "next_price": 150.87,
+      "fwd_return_pct": -1.7839,
+      "predicted": "HOLD",
+      "actual": "SELL"
+    },
+    {
+      "date": "2026-08-12",
+      "current_price": 150.87,
+      "next_price": 148.18,
+      "fwd_return_pct": -1.7839,
+      "predicted": "HOLD",
+      "actual": "SELL"
+    },
+    {
+      "date": "2026-08-13",
+      "current_price": 148.18,
+      "next_price": 145.54,
+      "fwd_return_pct": -1.7839,
+      "predicted": "HOLD",
+      "actual": "SELL"
+    },
+    {
+      "date": "2026-08-14",
+      "current_price": 145.54,
+      "next_price": 147.74,
+      "fwd_return_pct": 1.5113,
+      "predicted": "HOLD",
+      "actual": "BUY"
+    },
+    {
+      "date": "2026-08-15",
+      "current_price": 147.74,
+      "next_price": 149.97,
+      "fwd_return_pct": 1.5113,
+      "predicted": "HOLD",
+      "actual": "BUY"
+    }
+  ]
+}

@@ -37,9 +37,9 @@ logger = logging.getLogger(__name__)
 def generate_mock_ohlcv(symbol: str, period: str = "6mo") -> pd.DataFrame:
     """
     Fallback mock OHLCV generator when Yahoo Finance API fails or is blocked by SSL/network.
-    Generates realistic 120-day OHLCV data with technical indicator patterns.
+    Generates realistic 200-day OHLCV data with technical indicator patterns.
     """
-    num_days = 120
+    num_days = 200  # enough for lookback_days=120 + eval_window=30 + 1
     dates = pd.date_range(end=pd.Timestamp.now(), periods=num_days, freq="D")
     
     np.random.seed(abs(hash(symbol)) % (2**32))
@@ -251,6 +251,75 @@ def generate_xdi(signal: dict) -> str:
     )
 
     return " ".join(parts)
+
+
+# ── Day 10: Override-aware XDI ────────────────────────────────────────────────
+
+def generate_override_aware_xdi(signal: dict, override_params: dict) -> str:
+    """
+    Regenerate XDI justification after a trader override.
+
+    The output explicitly incorporates the new SL/TP/quantity values
+    so the explanation reflects the actual modified trade, not the original.
+
+    Args:
+        signal: Original signal dict from scan_for_signal().
+        override_params: Dict with optional keys:
+            - "quantity"   : new trade quantity
+            - "stop_loss"  : new stop-loss price (in local currency)
+            - "take_profit": new take-profit price (in local currency)
+            - "reason"     : trader-supplied reason for the override
+
+    Returns:
+        A human-readable XDI string that explicitly mentions overridden values.
+    """
+    base_xdi = generate_xdi(signal)
+
+    sym  = signal["symbol"]
+    cur  = "₹" if is_indian_stock(sym) else "$"
+    parts = [base_xdi]
+
+    # Build the override section — only mention values that actually changed
+    override_lines = []
+
+    new_qty = override_params.get("quantity")
+    if new_qty is not None:
+        orig_qty = max(1, int(SIMULATED_PORTFOLIO * (MAX_PER_TRADE_PCT / 100.0) / signal["price_inr"]))
+        override_lines.append(
+            f"Quantity overridden from {orig_qty} to {int(new_qty)} shares by trader intervention."
+        )
+
+    sl = override_params.get("stop_loss")
+    if sl is not None:
+        override_lines.append(
+            f"Stop-loss manually set to {cur}{sl:,.2f} "
+            f"(risk-per-share ≈ {cur}{abs(signal['price_inr'] - sl):,.2f})."
+        )
+
+    tp = override_params.get("take_profit")
+    if tp is not None:
+        override_lines.append(
+            f"Take-profit manually set to {cur}{tp:,.2f} "
+            f"(expected gain-per-share ≈ {cur}{abs(tp - signal['price_inr']):,.2f})."
+        )
+
+    if sl and tp:
+        risk_reward = abs(tp - signal["price_inr"]) / max(abs(signal["price_inr"] - sl), 0.01)
+        override_lines.append(
+            f"Risk:Reward ratio after override: 1:{risk_reward:.2f}."
+        )
+
+    reason = override_params.get("reason")
+    if reason:
+        override_lines.append(f"Trader justification: \"{reason}\".")
+
+    if override_lines:
+        override_section = "TRADER OVERRIDE APPLIED — " + " ".join(override_lines)
+        parts.append(override_section)
+
+    return " ".join(parts)
+
+
 
 
 # ── Full Pipeline ────────────────────────────────────────────────────────────
