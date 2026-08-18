@@ -105,7 +105,7 @@ describe("ProposalCard Component", () => {
 
     fireEvent.click(overrideBtn);
 
-    expect(mockNavigate).toHaveBeenCalledWith("/hijack", {
+    expect(mockNavigate).toHaveBeenCalledWith("/override", {
       state: {
         proposal: {
           id: "prop-quant",

@@ -152,7 +152,7 @@ print(response.json())`,
   -d '{"action": "approve"}'`
   },
   hijack: {
-    title: "Direct Execution Hijack",
+    title: "Direct Execution Override",
     description: "Bypass typical model pipeline parameters to directly override order quantities, entry trigger lines, and risk stop/target boundaries.",
     method: "POST",
     path: "/trade/hijack",

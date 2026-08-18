@@ -33,7 +33,7 @@ def test_login(client, db):
     assert resp.json()["detail"] == "Invalid email or password"
 
 
-def test_propose(client, db):
+def test_propose(auth_client, db):
     # TC-02: Proposal creation / retrieval
     payload = {
         "symbol": "BTCUSD",
@@ -43,21 +43,21 @@ def test_propose(client, db):
         "TP": 70000.0,
         "XAIReason": "Strong breakout on weekly chart"
     }
-    resp = client.post("/trade/proposals", json=payload)
+    resp = auth_client.post("/trade/proposals", json=payload)
     assert resp.status_code == 200
     data = resp.json()
     assert data["symbol"] == "BTCUSD"
     assert data["status"] == "pending"
     
     # Verify retrieval
-    resp = client.get("/trade/proposals")
+    resp = auth_client.get("/trade/proposals")
     assert resp.status_code == 200
     props = resp.json()
     assert len(props) > 0
     assert any(p["symbol"] == "BTCUSD" for p in props)
 
 
-def test_approve(client, db):
+def test_approve(auth_client, db):
     # TC-03: HITL Proposal Approval
     # 1. Create a proposal
     payload = {
@@ -68,12 +68,12 @@ def test_approve(client, db):
         "TP": 190.0,
         "XAIReason": "Bullish divergence"
     }
-    resp = client.post("/trade/proposals", json=payload)
+    resp = auth_client.post("/trade/proposals", json=payload)
     prop_id = resp.json()["id"]
 
     # 2. Approve proposal
     action_payload = {"action": "approve"}
-    resp = client.patch(f"/trade/{prop_id}/action", json=action_payload)
+    resp = auth_client.patch(f"/trade/{prop_id}/action", json=action_payload)
     assert resp.status_code == 200
     assert resp.json()["status"] == "approved"
 
@@ -83,7 +83,7 @@ def test_approve(client, db):
     assert audit_logs[0].action_type == "APPROVE"
 
 
-def test_reject(client, db):
+def test_reject(auth_client, db):
     # TC-04: HITL Proposal Rejection
     # 1. Create a proposal
     payload = {
@@ -94,12 +94,12 @@ def test_reject(client, db):
         "TP": 380.0,
         "XAIReason": "Overbought daily RSI"
     }
-    resp = client.post("/trade/proposals", json=payload)
+    resp = auth_client.post("/trade/proposals", json=payload)
     prop_id = resp.json()["id"]
 
     # 2. Reject proposal
     action_payload = {"action": "reject"}
-    resp = client.patch(f"/trade/{prop_id}/action", json=action_payload)
+    resp = auth_client.patch(f"/trade/{prop_id}/action", json=action_payload)
     assert resp.status_code == 200
     assert resp.json()["status"] == "rejected"
 
@@ -109,7 +109,7 @@ def test_reject(client, db):
     assert audit_logs[0].action_type == "REJECT"
 
 
-def test_override(client, db):
+def test_override(auth_client, db):
     # TC-05: Manual override validation (pauses autopilot and sets status to PAUSED)
     # 1. Create proposal
     payload = {
@@ -120,11 +120,11 @@ def test_override(client, db):
         "TP": 190.0,
         "XAIReason": "Earnings run-up"
     }
-    resp = client.post("/trade/proposals", json=payload)
+    resp = auth_client.post("/trade/proposals", json=payload)
     prop_id = resp.json()["id"]
 
     # 2. Set mode to autopilot
-    client.post("/trade/mode", json={"mode": "autopilot"})
+    auth_client.post("/trade/mode", json={"mode": "autopilot"})
 
     # 3. Trigger manual override (hijack)
     override_payload = {
@@ -135,12 +135,12 @@ def test_override(client, db):
         "entry_price": 170.0,
         "proposal_id": prop_id
     }
-    resp = client.post(f"/trade/{prop_id}/override", json=override_payload)
+    resp = auth_client.post(f"/trade/{prop_id}/override", json=override_payload)
     assert resp.status_code == 200
     assert resp.json()["status"] == "success"
 
     # 4. Verify system mode has fallen back to copilot
-    mode_resp = client.get("/trade/mode")
+    mode_resp = auth_client.get("/trade/mode")
     assert mode_resp.json()["mode"] == "copilot"
 
     # 5. Verify proposal status is now paused
@@ -155,28 +155,28 @@ def test_override(client, db):
     assert any(log.action_type == "HIJACK_EXECUTE" for log in logs)
 
 
-def test_autopilot_toggle(client, db):
+def test_autopilot_toggle(auth_client, db):
     # TC-06: System mode toggle
     # Start: copilot
-    resp = client.get("/trade/mode")
+    resp = auth_client.get("/trade/mode")
     assert resp.json()["mode"] == "copilot"
 
     # Toggle to autopilot
-    resp = client.post("/trade/mode", json={"mode": "autopilot"})
+    resp = auth_client.post("/trade/mode", json={"mode": "autopilot"})
     assert resp.status_code == 200
     assert resp.json()["mode"] == "autopilot"
 
     # Check mode status
-    resp = client.get("/trade/mode")
+    resp = auth_client.get("/trade/mode")
     assert resp.json()["mode"] == "autopilot"
 
     # Toggle back to copilot
-    resp = client.post("/trade/mode", json={"mode": "copilot"})
+    resp = auth_client.post("/trade/mode", json={"mode": "copilot"})
     assert resp.status_code == 200
     assert resp.json()["mode"] == "copilot"
 
 
-def test_override_fyers(client, db):
+def test_override_fyers(auth_client, db):
     # Create proposal for an Indian symbol
     payload = {
         "symbol": "RELIANCE.NS",
@@ -186,7 +186,7 @@ def test_override_fyers(client, db):
         "TP": 2600.0,
         "XAIReason": "Strong dynamic support"
     }
-    resp = client.post("/trade/proposals", json=payload)
+    resp = auth_client.post("/trade/proposals", json=payload)
     prop_id = resp.json()["id"]
 
     # Trigger manual override (hijack)
@@ -198,7 +198,7 @@ def test_override_fyers(client, db):
         "entry_price": 2450.0,
         "proposal_id": prop_id
     }
-    resp = client.post(f"/trade/{prop_id}/override", json=override_payload)
+    resp = auth_client.post(f"/trade/{prop_id}/override", json=override_payload)
     assert resp.status_code == 200
     assert resp.json()["status"] == "success"
 
@@ -212,7 +212,7 @@ def test_override_fyers(client, db):
     assert any(log.action_type == "HIJACK_EXECUTE" for log in logs)
 
 
-def test_approve_fyers(client, db):
+def test_approve_fyers(auth_client, db):
     # 1. Create proposal for Indian symbol mapped in select_executor_by_symbol
     payload = {
         "symbol": "TCS",
@@ -222,12 +222,12 @@ def test_approve_fyers(client, db):
         "TP": 3500.0,
         "XAIReason": "Indian sector momentum"
     }
-    resp = client.post("/trade/proposals", json=payload)
+    resp = auth_client.post("/trade/proposals", json=payload)
     prop_id = resp.json()["id"]
 
     # 2. Approve proposal
     action_payload = {"action": "approve"}
-    resp = client.patch(f"/trade/{prop_id}/action", json=action_payload)
+    resp = auth_client.patch(f"/trade/{prop_id}/action", json=action_payload)
     assert resp.status_code == 200
     assert resp.json()["status"] == "approved"
 

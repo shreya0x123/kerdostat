@@ -45,7 +45,8 @@ class FyersExecutor:
         qty: int, 
         side: str, 
         order_type: str = "market", 
-        price: Optional[float] = None
+        price: Optional[float] = None,
+        client_order_id: Optional[str] = None
     ) -> Any:
         """
         Submits a buy/sell order to Fyers.

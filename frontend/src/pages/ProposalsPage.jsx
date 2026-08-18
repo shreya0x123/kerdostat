@@ -164,7 +164,7 @@ export default function ProposalsPage() {
   });
 
   return (
-    <div className="w-full max-w-4xl mx-auto py-6 px-4 space-y-8 font-sans">
+    <div className="w-full max-w-4xl mx-auto py-6 px-4 space-y-8 font-sans" data-testid="proposals-page-content">
       {/* Header section */}
       <section className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/60 pb-6">
         <div className="space-y-2 text-left">

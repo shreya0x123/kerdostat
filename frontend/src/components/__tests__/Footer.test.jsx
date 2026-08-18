@@ -21,7 +21,7 @@ describe("Footer Component", () => {
     // Verify main platform links
     expect(screen.getByRole("link", { name: /Dashboard Terminal/i })).toHaveAttribute("href", "/dashboard");
     expect(screen.getByRole("link", { name: /Proposals Feed/i })).toHaveAttribute("href", "/proposals");
-    expect(screen.getByRole("link", { name: /Hijack Console/i })).toHaveAttribute("href", "/hijack");
+    expect(screen.getByRole("link", { name: /Manual Override/i })).toHaveAttribute("href", "/override");
     expect(screen.getByRole("link", { name: /Execution Audits/i })).toHaveAttribute("href", "/audit-log");
 
     // Verify resources links

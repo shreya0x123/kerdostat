@@ -101,6 +101,16 @@ export async function fetchOHLCV(range = "1D", symbol = "QUANT") {
   return response.json();
 }
 
+export async function searchAssets(query) {
+  const response = await fetch(`${BASE_URL}/market/search?q=${encodeURIComponent(query)}`, {
+    credentials: "include",
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to search assets: ${response.statusText}`);
+  }
+  return response.json();
+}
+
 export async function fetchSignal(range = "1D", symbol = "QUANT") {
   const response = await fetch(`${BASE_URL}/market/signal?range=${range}&symbol=${symbol}`, {
     credentials: "include",

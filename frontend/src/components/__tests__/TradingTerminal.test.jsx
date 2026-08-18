@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
+import { MemoryRouter } from "react-router-dom";
 import TradingTerminal from "../TradingTerminal";
 import * as useMarketEngineModule from "@/hooks/useMarketEngine";
 
@@ -42,7 +43,11 @@ describe("TradingTerminal Guardrail Breach (TC-08)", () => {
       xaiLogs: ["[10:00:00] Live algo loop running nominal."],
     });
 
-    render(<TradingTerminal />);
+    render(
+      <MemoryRouter>
+        <TradingTerminal />
+      </MemoryRouter>
+    );
 
     // Safety card details should be nominal
     expect(screen.getByTestId("safety-card")).toBeInTheDocument();
@@ -61,7 +66,11 @@ describe("TradingTerminal Guardrail Breach (TC-08)", () => {
       xaiLogs: ["[10:00:00] Critical exposure breach warning."],
     });
 
-    render(<TradingTerminal />);
+    render(
+      <MemoryRouter>
+        <TradingTerminal />
+      </MemoryRouter>
+    );
 
     // Safety card details should show BREACH details
     expect(screen.getByTestId("safety-card")).toBeInTheDocument();

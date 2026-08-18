@@ -1,4 +1,4 @@
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import App from "../../App";
@@ -27,6 +27,7 @@ describe("End-to-end Auth and Proposals Smoke Test", () => {
     
     // Clear local storage to ensure fresh session
     localStorage.clear();
+    localStorage.setItem("kerdostat_tour_status", "completed");
 
     // Mock global WebSocket to prevent connection errors
     class MockWebSocket {
@@ -274,36 +275,26 @@ describe("End-to-end Auth and Proposals Smoke Test", () => {
 
     // --- PHASE 5: Wait for Hijack Page & Modify Parameters ---
     await waitFor(() => {
-      expect(screen.getAllByText("Execution Hijack Engine").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("Manual Override Console").length).toBeGreaterThan(0);
       expect(screen.getByTestId("hijack-panel")).toBeInTheDocument();
     });
 
-    const slInput = screen.getByLabelText(/Stop Loss/i);
-    const entryInput = screen.getByLabelText(/Entry Price/i);
-    const submitBtn = screen.getByRole("button", { name: /EXECUTE HIJACK OVERRIDE/i });
+    const qtyInput = within(screen.getByTestId("hijack-panel")).getByLabelText(/Quantity/i);
+    const buyBtn = screen.getByRole("button", { name: /^Buy$/i });
 
-    // Ensure default settings are valid (SL=149 < Entry=151.60)
+    // Verify quantity is pre-filled with proposal qty (150)
+    expect(qtyInput).toHaveValue(150);
+
+    // Modify quantity to 100
+    await user.clear(qtyInput);
+    await user.type(qtyInput, "100");
+
     await waitFor(() => {
-      expect(submitBtn).not.toBeDisabled();
+      expect(buyBtn).not.toBeDisabled();
     });
 
-    // Modify SL to be invalid (SL=180 > Entry=173.0)
-    await user.clear(slInput);
-    await user.type(slInput, "180");
-    await waitFor(() => {
-      expect(screen.getByTestId("SL-error")).toBeInTheDocument();
-      expect(submitBtn).toBeDisabled();
-    });
-
-    // Reset to valid (SL=145 < Entry=173.0)
-    await user.clear(slInput);
-    await user.type(slInput, "145");
-    await waitFor(() => {
-      expect(submitBtn).not.toBeDisabled();
-    });
-
-    // --- PHASE 6: Submit Hijack Order ---
-    await user.click(submitBtn);
+    // --- PHASE 6: Submit Order ---
+    await user.click(buyBtn);
 
     // --- PHASE 7: Verify success message ---
     await waitFor(() => {

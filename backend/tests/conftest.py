@@ -24,6 +24,11 @@ test_engine = create_engine(
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
+@pytest.fixture(autouse=True)
+def enforce_mock_mode(monkeypatch):
+    monkeypatch.setenv("MOCK_ALPACA", "true")
+    monkeypatch.setenv("MOCK_FYERS", "true")
+
 @pytest.fixture(name="db")
 def session_fixture():
     Base.metadata.create_all(bind=test_engine)
@@ -46,3 +51,16 @@ def client_fixture(db):
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
+
+@pytest.fixture(name="auth_client")
+def auth_client_fixture(client):
+    client.post("/auth/register", json={
+        "name": "Test Trader",
+        "email": "test@trader.com",
+        "password": "securepassword"
+    })
+    client.post("/auth/login", json={
+        "email": "test@trader.com",
+        "password": "securepassword"
+    })
+    return client
