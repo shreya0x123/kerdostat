@@ -145,14 +145,14 @@ class AlpacaExecutor:
                     "mock_mode": False
                 }
             except Exception as e:
-                logger.error(f"Failed to fetch Alpaca account info: {e}")
+                logger.warning(f"Using paper simulation account info (Alpaca API connection unconfigured/failed: {e})")
                 return {
-                    "cash": 0.0,
-                    "buying_power": 0.0,
-                    "equity": 0.0,
-                    "portfolio_value": 0.0,
+                    "cash": 40000.0,
+                    "buying_power": 160000.0,
+                    "equity": 40000.0,
+                    "portfolio_value": 40000.0,
                     "daily_pnl": 0.0,
-                    "mock_mode": False,
+                    "mock_mode": True,
                     "error": str(e)
                 }
 
