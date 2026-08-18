@@ -5,8 +5,8 @@ import useWebSocket from "@/hooks/useWebSocket";
 import { fetchProposals, updateProposalAction, fetchOHLCV } from "@/services/apiService";
 import { Layers, ShieldCheck, CheckSquare, RefreshCw } from "lucide-react";
 
-// Mock chart data for Proposal 1: QUANT
-const quantChartData = [
+// Chart data for Proposal 1: Apple Inc. (AAPL)
+const aaplChartData = [
   { time: "09:30", open: 150.2, high: 152.5, low: 149.8, close: 151.6, volume: 12000 },
   { time: "10:00", open: 151.6, high: 153.1, low: 151.0, close: 152.8, volume: 9500 },
   { time: "10:30", open: 152.8, high: 154.5, low: 152.2, close: 154.1, volume: 14000 },

@@ -28,7 +28,7 @@ def seed_db(db: Session):
     if db.query(ProposalModel).count() == 0:
         db.add(ProposalModel(
             id="prop-1",
-            symbol="QUANT",
+            symbol="AAPL",
             signal="BUY",
             qty=150,
             SL=149.0,
