@@ -155,7 +155,7 @@ export default function ProposalsPage() {
     }
     if (symbol === "NVDA") return nvdaChartData;
     if (symbol === "TSLA") return tslaChartData;
-    return quantChartData;
+    return aaplChartData;
   };
 
   const filteredProposals = proposals.filter((p) => {
