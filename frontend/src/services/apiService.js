@@ -208,3 +208,29 @@ export async function fetchPositions() {
   return response.json();
 }
 
+export function connectWebSocket(onMessage, url) {
+  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  const wsUrl = url || ((window.location.port === "80" || window.location.port === "") ? `${protocol}//${window.location.host}/ws` : "ws://localhost:8000/ws");
+  try {
+    const ws = new WebSocket(wsUrl);
+    ws.onopen = () => {
+      if (onMessage) onMessage({ event: "connected" });
+    };
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (onMessage) onMessage(data);
+      } catch {
+        if (onMessage) onMessage(event.data);
+      }
+    };
+    ws.onerror = (err) => {
+      console.warn("WebSocket error:", err);
+    };
+    return ws;
+  } catch (err) {
+    console.warn("Failed to create WebSocket:", err);
+    return null;
+  }
+}
+

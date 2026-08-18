@@ -1,3 +1,4 @@
+import os
 import sys
 import asyncio
 from contextlib import asynccontextmanager
@@ -82,10 +83,14 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS Middleware Configuration
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
+# Dynamic CORS Middleware Configuration
+raw_origins = os.getenv("ALLOWED_ORIGINS", "")
+if raw_origins:
+    allowed_origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
+else:
+    allowed_origins = [
+        "http://localhost",
+        "http://localhost:80",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:5174",
@@ -94,7 +99,11 @@ app.add_middleware(
         "http://127.0.0.1:5175",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-    ],
+    ]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

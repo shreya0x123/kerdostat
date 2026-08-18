@@ -2,37 +2,41 @@ version: '3.8'
 
 services:
   redis:
-    image: redis:alpine
+    image: redis:7-alpine
     container_name: kerdostat-redis
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 3
-    restart: always
+    restart: unless-stopped
 
   backend:
     build: ./backend
     container_name: kerdostat-backend
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     environment:
-      - REDIS_URL=redis://redis:6379
-      - MOCK_ALPACA=true
-      - MOCK_FYERS=true
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - WORKERS=${WORKERS:-4}
     volumes:
-      - ./backend/kerdostat.db:/app/kerdostat.db
+      - backend_data:/app/data
     depends_on:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 10s
       timeout: 5s
       retries: 3
-    restart: always
+    restart: unless-stopped
 
   nginx:
     build:
@@ -41,6 +45,7 @@ services:
     container_name: kerdostat-nginx
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       backend:
         condition: service_healthy
@@ -51,5 +56,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-    restart: always
+    restart: unless-stopped
+
+volumes:
+  redis_data:
+  backend_data:
 
