@@ -1,0 +1,5 @@
+{
+  "max_position_size": 1000,
+  "daily_loss_limit": 5000.0,
+  "max_open_trades": 5
+}
