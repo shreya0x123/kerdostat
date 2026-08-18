@@ -37,6 +37,12 @@ export default function useWebSocket(url = getDefaultWsUrl()) {
       socket.onmessage = (event) => {
         try {
           const parsed = JSON.parse(event.data);
+          if (parsed.type === "ping" || parsed.event === "heartbeat") {
+            if (socket.readyState === WebSocket.OPEN) {
+              socket.send(JSON.stringify({ type: "pong", timestamp: Date.now() }));
+            }
+            return;
+          }
           setLatestMessage(parsed);
         } catch {
           setLatestMessage(event.data);

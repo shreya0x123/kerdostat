@@ -1,3 +1,4 @@
+import os
 import uuid
 import sys
 import logging
@@ -285,7 +286,11 @@ async def update_proposal_action(
             detail="Action must be either 'approve' or 'reject'"
         )
 
-    proposal = db.query(ProposalModel).filter(ProposalModel.id == proposal_id).first()
+    try:
+        proposal = db.query(ProposalModel).with_for_update().filter(ProposalModel.id == proposal_id).first()
+    except Exception:
+        proposal = db.query(ProposalModel).filter(ProposalModel.id == proposal_id).first()
+
     if not proposal:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 

@@ -48,3 +48,42 @@ def broker_status():
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=f"Failed to connect to broker: {e}"
         )
+
+@router.get("/health/stats")
+@router.get("/metrics")
+def get_operational_metrics():
+    from app.core.websocket import manager
+    from app.core.database import SessionLocal
+    from app.models.proposal import ProposalModel
+    from app.services import guardrail_engine
+
+    db = SessionLocal()
+    try:
+        total_proposals = db.query(ProposalModel).count()
+        pending_proposals = db.query(ProposalModel).filter(ProposalModel.status == "pending").count()
+        approved_proposals = db.query(ProposalModel).filter(ProposalModel.status == "approved").count()
+        executed_proposals = db.query(ProposalModel).filter(ProposalModel.status == "executed").count()
+        rejected_proposals = db.query(ProposalModel).filter(ProposalModel.status == "rejected").count()
+    except Exception:
+        total_proposals = pending_proposals = approved_proposals = executed_proposals = rejected_proposals = 0
+    finally:
+        db.close()
+
+    return {
+        "status": "healthy",
+        "environment": os.getenv("ENVIRONMENT", "development"),
+        "active_websocket_connections": len(getattr(manager, "active_connections", [])),
+        "proposals_summary": {
+            "total": total_proposals,
+            "pending": pending_proposals,
+            "approved": approved_proposals,
+            "executed": executed_proposals,
+            "rejected": rejected_proposals
+        },
+        "guardrail_config": {
+            "max_position_size": guardrail_engine.config.get("max_position_size", 1000),
+            "daily_loss_limit": guardrail_engine.config.get("daily_loss_limit", 5000.0),
+            "max_open_trades": guardrail_engine.config.get("max_open_trades", 5),
+            "kill_switch": guardrail_engine.config.get("kill_switch", False)
+        }
+    }

@@ -22,10 +22,22 @@ class ConnectionManager:
         self.redis_client = None
         self.pubsub = None
         self.listener_task = None
+        self.ping_task = None
+
+    async def start_ping_loop(self):
+        if self.ping_task is None:
+            self.ping_task = asyncio.create_task(self._ping_loop())
+
+    async def _ping_loop(self):
+        while True:
+            await asyncio.sleep(30)
+            if self.active_connections:
+                await self.broadcast({"type": "ping", "event": "heartbeat"})
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self.active_connections.append(websocket)
+        await self.start_ping_loop()
         logger.info(f"WebSocket client connected. Active connections: {len(self.active_connections)}")
 
     def disconnect(self, websocket: WebSocket):

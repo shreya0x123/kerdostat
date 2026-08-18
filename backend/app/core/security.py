@@ -9,10 +9,19 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.user import UserModel
 
-# JWT Configuration
+# JWT Configuration & Production Security Validation
 JWT_SECRET = os.getenv("JWT_SECRET", "supersecretkey_kerdostat_928173")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development").lower()
+
+if ENVIRONMENT == "production":
+    DEFAULT_KEYS = ["supersecretkey_kerdostat_928173", "change-me", "secret", "your-super-secret-jwt-key-change-in-production"]
+    if JWT_SECRET in DEFAULT_KEYS or len(JWT_SECRET) < 32:
+        raise RuntimeError(
+            "CRITICAL SECURITY CONFIGURATION ERROR: ENVIRONMENT is set to 'production', but JWT_SECRET "
+            "is using a default or insecure key (< 32 characters). Set a strong JWT_SECRET in environment variables."
+        )
 
 def create_jwt_token(data: dict) -> str:
     payload = data.copy()
