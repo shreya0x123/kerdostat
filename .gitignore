@@ -1,16 +1,26 @@
-# Environment variables (Alpaca / Fyers / App private keys)
+# Environment variables & secrets
 .env
+.env.local
+.env.*.local
 backend/.env
 
-# Local SQLite databases
+# Local SQLite databases & state
 *.db
+*.sqlite
+*.sqlite3
 backend/*.db
 
 # Python virtual environments & cache
 venv/
+env/
+ENV/
 .pytest_cache/
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+htmlcov/
+.coverage
+pytestdebug.log
 
 # Node modules & frontend builds
 node_modules/
@@ -21,4 +31,7 @@ build/
 # IDE / OS junk
 .vscode/
 .idea/
+*.swp
+*.swo
 .DS_Store
+Thumbs.db

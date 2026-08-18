@@ -5,11 +5,11 @@ from datetime import datetime, timezone
 def test_guardrail_max_position_size(client, db):
     # Setup a proposal with qty > 1000 (which exceeds default max_position_size of 1000)
     payload = {
-        "symbol": "AAPL",
+        "symbol": "INTC",
         "signal": "BUY",
         "qty": 1001,
-        "SL": 170.0,
-        "TP": 190.0,
+        "SL": 29.5,
+        "TP": 35.0,
         "XAIReason": "Test maximum position size"
     }
     resp = client.post("/trade/proposals", json=payload)
@@ -24,11 +24,11 @@ def test_guardrail_max_position_size(client, db):
 
     # Verify override check for quantity
     override_payload = {
-        "symbol": "AAPL",
+        "symbol": "INTC",
         "qty": 1200,
-        "SL": 170.0,
-        "TP": 190.0,
-        "entry_price": 175.0,
+        "SL": 29.5,
+        "TP": 35.0,
+        "entry_price": 30.0,
         "proposal_id": prop_id
     }
     resp = client.post(f"/trade/{prop_id}/override", json=override_payload)
