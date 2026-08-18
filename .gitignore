@@ -1,4 +1,4 @@
-# Environment variables (Alpaca private keys)
+# Environment variables (Alpaca / Fyers / App private keys)
 .env
 backend/.env
 
@@ -15,4 +15,10 @@ __pycache__/
 # Node modules & frontend builds
 node_modules/
 dist/
+build/
 .eslintcache
+
+# IDE / OS junk
+.vscode/
+.idea/
+.DS_Store
