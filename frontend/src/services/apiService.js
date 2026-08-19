@@ -3,8 +3,18 @@ const BASE_URL = ENV_BASE
   ? (ENV_BASE.endsWith("/") ? ENV_BASE.slice(0, -1) : ENV_BASE)
   : (window.location.port === "80" ? "/api" : "http://localhost:8000");
 
+const getToken = () => localStorage.getItem("kerdostat_token");
+const setToken = (t) => t && localStorage.setItem("kerdostat_token", t);
+const removeToken = () => localStorage.removeItem("kerdostat_token");
+
+const getAuthHeaders = () => {
+  const t = getToken();
+  return t ? { "Authorization": `Bearer ${t}` } : {};
+};
+
 export async function fetchProposals() {
   const response = await fetch(`${BASE_URL}/trade/proposals`, {
+    headers: { ...getAuthHeaders() },
     credentials: "include",
   });
   if (!response.ok) {
@@ -18,6 +28,7 @@ export async function updateProposalAction(proposalId, action) {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
+      ...getAuthHeaders(),
     },
     body: JSON.stringify({ action }),
     credentials: "include",
@@ -47,7 +58,11 @@ export async function loginUser(email, password) {
     throw new Error(errorData.detail || "Authentication failed.");
   }
 
-  return response.json();
+  const data = await response.json();
+  if (data.token || data.access_token) {
+    setToken(data.token || data.access_token);
+  }
+  return data;
 }
 
 export async function registerUser(name, email, password) {
@@ -65,25 +80,28 @@ export async function registerUser(name, email, password) {
     throw new Error(errorData.detail || "Registration failed.");
   }
 
-  return response.json();
+  const data = await response.json();
+  if (data.token || data.access_token) {
+    setToken(data.token || data.access_token);
+  }
+  return data;
 }
 
 export async function logoutUser() {
+  removeToken();
   const response = await fetch(`${BASE_URL}/auth/logout`, {
     method: "POST",
+    headers: { ...getAuthHeaders() },
     credentials: "include",
   });
 
-  if (!response.ok) {
-    throw new Error("Logout failed on server.");
-  }
-
-  return response.json();
+  return response.json().catch(() => ({ status: "success" }));
 }
 
 export async function fetchMe() {
   const response = await fetch(`${BASE_URL}/auth/me`, {
     method: "GET",
+    headers: { ...getAuthHeaders() },
     credentials: "include",
   });
 
