@@ -23,7 +23,6 @@ else
     exec gunicorn app.main:app \
         --workers "${WORKERS}" \
         --worker-class uvicorn.workers.UvicornWorker \
-        --ws wsproto \
         --bind 0.0.0.0:8000 \
         --log-level "${LOG_LEVEL}" \
         --access-logfile - \

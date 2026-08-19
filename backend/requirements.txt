@@ -1,6 +1,7 @@
 fastapi
 uvicorn
 gunicorn
+alembic
 wsproto
 websockets==10.4
 psycopg2-binary
