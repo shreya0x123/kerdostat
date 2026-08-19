@@ -1,7 +1,7 @@
 fastapi
-uvicorn[standard]
+uvicorn
 wsproto
-websockets>=14.0
+websockets<11.0
 pydantic
 PyJWT
 sqlalchemy

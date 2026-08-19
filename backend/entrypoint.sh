@@ -22,7 +22,7 @@ else
     echo "Starting Gunicorn in production mode with ${WORKERS} workers..."
     exec gunicorn app.main:app \
         --workers "${WORKERS}" \
-        --worker-class uvicorn.workers.UvicornWorker \
+        --worker-class app.core.worker.CustomUvicornWorker \
         --bind 0.0.0.0:8000 \
         --log-level "${LOG_LEVEL}" \
         --access-logfile - \
