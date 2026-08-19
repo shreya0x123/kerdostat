@@ -14,6 +14,13 @@ export default class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error("[ErrorBoundary] Caught error:", error, errorInfo);
+    if (error && (error.name === "ChunkLoadError" || error.message?.includes("dynamically imported module") || error.message?.includes("Loading chunk"))) {
+      const isReloaded = sessionStorage.getItem("chunk_reload_attempted");
+      if (!isReloaded) {
+        sessionStorage.setItem("chunk_reload_attempted", "true");
+        window.location.reload();
+      }
+    }
   }
 
   handleReset = () => {
