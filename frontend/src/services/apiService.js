@@ -114,6 +114,7 @@ export async function fetchMe() {
 
 export async function fetchOHLCV(range = "1D", symbol = "QUANT") {
   const response = await fetch(`${BASE_URL}/market/ohlcv?range=${range}&symbol=${symbol}`, {
+    headers: { ...getAuthHeaders() },
     credentials: "include",
   });
   if (!response.ok) {
@@ -124,6 +125,7 @@ export async function fetchOHLCV(range = "1D", symbol = "QUANT") {
 
 export async function searchAssets(query) {
   const response = await fetch(`${BASE_URL}/market/search?q=${encodeURIComponent(query)}`, {
+    headers: { ...getAuthHeaders() },
     credentials: "include",
   });
   if (!response.ok) {
@@ -134,6 +136,7 @@ export async function searchAssets(query) {
 
 export async function fetchSignal(range = "1D", symbol = "QUANT") {
   const response = await fetch(`${BASE_URL}/market/signal?range=${range}&symbol=${symbol}`, {
+    headers: { ...getAuthHeaders() },
     credentials: "include",
   });
   if (!response.ok) {
@@ -144,6 +147,7 @@ export async function fetchSignal(range = "1D", symbol = "QUANT") {
 
 export async function fetchAuditLogs() {
   const response = await fetch(`${BASE_URL}/trade/audit-logs`, {
+    headers: { ...getAuthHeaders() },
     credentials: "include",
   });
   if (!response.ok) {
@@ -157,6 +161,7 @@ export async function executeHijack(payload) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...getAuthHeaders(),
     },
     body: JSON.stringify(payload),
     credentials: "include",
@@ -173,6 +178,7 @@ export async function overrideProposal(id, payload) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...getAuthHeaders(),
     },
     body: JSON.stringify(payload),
     credentials: "include",
@@ -186,6 +192,7 @@ export async function overrideProposal(id, payload) {
 
 export async function fetchMode() {
   const response = await fetch(`${BASE_URL}/trade/mode`, {
+    headers: { ...getAuthHeaders() },
     credentials: "include",
   });
   if (!response.ok) {
@@ -195,10 +202,11 @@ export async function fetchMode() {
 }
 
 export async function updateMode(mode) {
-  const response = await fetch(`${BASE_URL}/trade/mode`, {
-    method: "POST",
+  const response = await fetch(`${BASE_URL}/user/mode`, {
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
+      ...getAuthHeaders(),
     },
     body: JSON.stringify({ mode }),
     credentials: "include",
@@ -211,6 +219,7 @@ export async function updateMode(mode) {
 
 export async function fetchAccountDetails() {
   const response = await fetch(`${BASE_URL}/trade/account`, {
+    headers: { ...getAuthHeaders() },
     credentials: "include",
   });
   if (!response.ok) {
@@ -221,6 +230,7 @@ export async function fetchAccountDetails() {
 
 export async function fetchPositions() {
   const response = await fetch(`${BASE_URL}/trade/positions`, {
+    headers: { ...getAuthHeaders() },
     credentials: "include",
   });
   if (!response.ok) {
