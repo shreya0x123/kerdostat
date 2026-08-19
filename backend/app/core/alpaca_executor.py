@@ -8,9 +8,9 @@ logger = logging.getLogger("kerdostat-alpaca-executor")
 
 class AlpacaExecutor:
     def __init__(self):
-        self.api_key = os.getenv("ALPACA_API_KEY")
-        self.secret_key = os.getenv("ALPACA_SECRET_KEY")
-        self.base_url = os.getenv("ALPACA_BASE_URL", "https://paper-api.alpaca.markets")
+        self.api_key = os.getenv("ALPACA_API_KEY", "").strip() if os.getenv("ALPACA_API_KEY") else None
+        self.secret_key = os.getenv("ALPACA_SECRET_KEY", "").strip() if os.getenv("ALPACA_SECRET_KEY") else None
+        self.base_url = os.getenv("ALPACA_BASE_URL", "https://paper-api.alpaca.markets").strip()
         self.client = None
         self.mock_orders = {}
         

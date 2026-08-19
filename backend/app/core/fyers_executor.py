@@ -9,9 +9,9 @@ logger = logging.getLogger("kerdostat-fyers-executor")
 class FyersExecutor:
     def __init__(self):
         # Load environment variables
-        self.client_id = os.getenv("FYERS_CLIENT_ID")
-        self.access_token = os.getenv("FYERS_ACCESS_TOKEN")
-        self.base_url = os.getenv("FYERS_BASE_URL", "https://api-t1.fyers.in/api/v3")
+        self.client_id = os.getenv("FYERS_CLIENT_ID", "").strip() if os.getenv("FYERS_CLIENT_ID") else None
+        self.access_token = os.getenv("FYERS_ACCESS_TOKEN", "").strip() if os.getenv("FYERS_ACCESS_TOKEN") else None
+        self.base_url = os.getenv("FYERS_BASE_URL", "https://api-t1.fyers.in/api/v3").strip()
         
         # Check mock flag (default to True if not explicitly false)
         self.mock_mode = os.getenv("MOCK_FYERS", "true").lower() == "true"
