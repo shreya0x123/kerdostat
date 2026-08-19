@@ -36,6 +36,9 @@ class AlpacaExecutor:
         mock_env = os.getenv("MOCK_ALPACA")
         if mock_env is not None:
             return mock_env.lower() == "true"
+        # Automatically connect to live Alpaca account if credentials are configured
+        if self.api_key and self.secret_key:
+            return False
         return True
 
     def submit_order(
@@ -163,7 +166,7 @@ class AlpacaExecutor:
         if self.is_mock():
             return [
                 {
-                    "symbol": "QUANT",
+                    "symbol": "AAPL",
                     "qty": 50,
                     "avg_entry_price": 103.75,
                     "current_price": 105.00,
