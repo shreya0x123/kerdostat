@@ -2,8 +2,14 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
 const getDefaultWsUrl = () => {
+  const envBase = import.meta.env.VITE_API_BASE_URL;
+  if (envBase) {
+    const wsProto = envBase.startsWith("https:") ? "wss:" : "ws:";
+    const cleanHost = envBase.replace(/^https?:\/\//, "").replace(/\/$/, "");
+    return `${wsProto}//${cleanHost}/ws`;
+  }
   const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-  if (window.location.port === "80" || window.location.port === "") {
+  if (window.location.port === "80") {
     return `${protocol}//${window.location.host}/ws`;
   }
   return "ws://localhost:8000/ws";

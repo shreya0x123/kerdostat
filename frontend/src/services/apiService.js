@@ -1,4 +1,7 @@
-const BASE_URL = (window.location.port === "80" || window.location.port === "") ? "/api" : "http://localhost:8000";
+const ENV_BASE = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = ENV_BASE
+  ? (ENV_BASE.endsWith("/") ? ENV_BASE.slice(0, -1) : ENV_BASE)
+  : (window.location.port === "80" ? "/api" : "http://localhost:8000");
 
 export async function fetchProposals() {
   const response = await fetch(`${BASE_URL}/trade/proposals`, {
